@@ -13,6 +13,9 @@ Just run `make` to download the original caffe model and convert it.
 `tf_forward.py` has an example of how to use the generated `vgg16.tfmodel`
 file.
 
+If you don't feel like installing caffe, you can download the generated
+`vgg16.tfmodel` on [my website](http://tinyclouds.org/ai/tensorflow-vgg16).
+
 I modified the prototxt file slightly for debugging purposes.
 (Renaming a couple of the blobs.)
 
