@@ -20,7 +20,7 @@ def imshow(image):
   skimage.io.show()
 
 #caffe.set_mode_cpu()
-net_caffe = caffe.Net("VGG_2014_16.prototxt", "VGG_2014_16.caffemodel", caffe.TEST)
+net_caffe = caffe.Net("VGG_2014_16.prototxt", "VGG_ILSVRC_16_layers.caffemodel", caffe.TEST)
 
 
 caffe_layers = {}
