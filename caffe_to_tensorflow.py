@@ -19,6 +19,37 @@ def imshow(image):
   skimage.io.imshow(image)
   skimage.io.show()
 
+# input as gotten from skimage.io.imread() that is
+# [width, height, 3]
+# and scaled between 0 and 1
+#
+# output is scaled to 0 - 255 and depending on is_caffe
+# the shape is
+# output caffe: [in_channels, in_width, in_height]
+# output tf: [in_height, in_width, in_channels]
+def preprocess(img):
+  # convert to numpy.ndarray
+  out = np.copy(img) * 255
+  # swap channel from RGB to BGR
+  out = out[:, :, [2,1,0]]
+  # sub mean
+  out[:,:,0] -= VGG_MEAN[0]
+  out[:,:,1] -= VGG_MEAN[1]
+  out[:,:,2] -= VGG_MEAN[2]
+  out = out.transpose((2,0,1))
+  return out
+
+def deprocess(img):
+  out = np.copy(img)
+  out = out.transpose((1,2,0))
+
+  out[:,:,0] += VGG_MEAN[0]
+  out[:,:,1] += VGG_MEAN[1]
+  out[:,:,2] += VGG_MEAN[2]
+  out = out[:, :, [2,1,0]]
+  out /= 255
+  return out
+
 #caffe.set_mode_cpu()
 net_caffe = caffe.Net("VGG_2014_16.prototxt", "VGG_ILSVRC_16_layers.caffemodel", caffe.TEST)
 
@@ -92,10 +123,28 @@ def fc_layer(bottom, name):
 
   return fc
 
-def inference(images):
+def inference(rgb):
   m = {}
 
-  relu1_1 = conv_layer(m, images, "conv1_1")
+  rgb_scaled = rgb * 255.0
+
+  # Convert RGB to BGR
+  red, green, blue = tf.split(3, 3, rgb_scaled)
+  assert red.get_shape().as_list()[1:] == [224, 224, 1]
+  assert green.get_shape().as_list()[1:] == [224, 224, 1]
+  assert blue.get_shape().as_list()[1:] == [224, 224, 1]
+  bgr = tf.concat(3, [
+    blue - VGG_MEAN[0],
+    green - VGG_MEAN[1],
+    red - VGG_MEAN[2],
+  ])
+  assert bgr.get_shape().as_list()[1:] == [224, 224, 3]
+
+  # height needs to come first
+  bgr_t = tf.transpose(bgr, (0, 2, 1, 3))
+  
+
+  relu1_1 = conv_layer(m, bgr_t, "conv1_1")
   relu1_2 = conv_layer(m, relu1_1, "conv1_2")
   pool1 = tf.nn.max_pool(relu1_2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1],
                          padding='SAME', name='pool1')
@@ -127,7 +176,7 @@ def inference(images):
 
   m['pool5'] = pool5
 
-  # In TF the 
+  # TODO this shouldn't be necessary...
   pool5_rotated = tf.transpose(pool5, perm=(0,3,2,1))
 
   fc6 = fc_layer(pool5_rotated, "fc6")
@@ -151,7 +200,7 @@ def inference(images):
 def show_caffe_net_input():
   x = net_caffe.blobs['data'].data[0]
   assert x.shape == (3, 224, 224)
-  i = deprocess(x, True)
+  i = deprocess(x)
   imshow(i)
 
 def same_tensor(a, b):
@@ -161,13 +210,12 @@ def main():
   global tf_activations
 
   cat = load_image("cat.jpg")
-  assert same_tensor(deprocess(preprocess(cat, True), True), cat)
-  assert same_tensor(deprocess(preprocess(cat, False), False), cat)
   print "cat shape", cat.shape
 
   if not FLAGS.only_tf:
     print "caffe session"
-    net_caffe.blobs['data'].data[0] = preprocess(cat, True)
+    assert same_tensor(deprocess(preprocess(cat)), cat)
+    net_caffe.blobs['data'].data[0] = preprocess(cat)
     assert net_caffe.blobs['data'].data[0].shape == (3, 224, 224)
     #show_caffe_net_input()
     net_caffe.forward()
@@ -192,12 +240,12 @@ def main():
       sess.run(init)
       print "variables initialized"
 
-      batch = preprocess(cat, False).reshape((1, 224, 224, 3))
+      assert cat.shape == (224, 224, 3)
+      batch = cat.reshape((1, 224, 224, 3))
       assert batch.shape == (1, 224, 224, 3)
-      feed_dict = { images: batch }
 
       out = sess.run([m['prob'], m['relu1_1'], m['conv1_1_weights'], \
-          m['conv1_1a'], m['pool5'], m['fc6a']], feed_dict=feed_dict)
+          m['conv1_1a'], m['pool5'], m['fc6a']], feed_dict={ images: batch })
       tf_activations = {
         'prob': out[0][0],
         'relu1_1': out[1][0],

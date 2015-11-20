@@ -1,5 +1,5 @@
 import tensorflow as tf
-from utils import *
+import utils
 
 
 with open("vgg16.tfmodel", mode='rb') as f:
@@ -15,14 +15,14 @@ print "graph loaded from disk"
 
 graph = tf.get_default_graph()
 
-cat = load_image("cat.jpg")
+cat = utils.load_image("cat.jpg")
 
 with tf.Session() as sess:
   init = tf.initialize_all_variables()
   sess.run(init)
   print "variables initialized"
 
-  batch = preprocess(cat, False).reshape((1, 224, 224, 3))
+  batch = cat.reshape((1, 224, 224, 3))
   assert batch.shape == (1, 224, 224, 3)
 
   feed_dict = { images: batch }
@@ -30,6 +30,6 @@ with tf.Session() as sess:
   prob_tensor = graph.get_tensor_by_name("import/prob:0")
   prob = sess.run(prob_tensor, feed_dict=feed_dict)
 
-print_prob(prob[0])
+utils.print_prob(prob[0])
 
 
