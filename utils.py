@@ -4,8 +4,10 @@ import skimage.transform
 import numpy as np
 
 synset = [l.strip() for l in open('synset.txt').readlines()]
-VGG_MEAN = np.array([103.939, 116.779, 123.68])
+VGG_MEAN = [103.939, 116.779, 123.68]
 
+# returns image of shape [224, 224, 3]
+# [height, width, depth]
 def load_image(path):
   # load image
   img = skimage.io.imread(path)
@@ -19,6 +21,7 @@ def load_image(path):
   resized_img = skimage.transform.resize(crop_img, (224, 224))
   return resized_img
 
+# returns the top1 string
 def print_prob(prob):
   #print prob
   print "prob shape", prob.shape
@@ -30,3 +33,4 @@ def print_prob(prob):
   # Get top5 label
   top5 = [synset[pred[i]] for i in range(5)]
   print "Top5: ", top5
+  return top1
