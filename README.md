@@ -15,10 +15,11 @@ Run `make` to download the original caffe model and convert it.
 `tf_forward.py` has an example of how to use the generated `vgg16.tfmodel`
 file.
 
-If you don't feel like installing caffe, you can download the generated
-model here: https://s3.amazonaws.com/tinyclouds-storage/vgg16-v4.tfmodel
+If you don't feel like installing caffe, you can download the output here:
+https://s3.amazonaws.com/tinyclouds-storage/vgg16-v4.tfmodel
 
-The input to the TF model is expected to be [batch, height, width, channel]
+The input ("images") to the TF model is expected to be [batch, height, width, channel]
 where height = width = 224 and channel = 3.
 
-The output is a 1000 dimensional vector.
+The output ("prob") is a 1000 dimensional class probabiity vector whose indexes
+correspond to line numbers in syset.txt.
