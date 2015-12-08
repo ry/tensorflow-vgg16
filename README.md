@@ -19,7 +19,7 @@ If you don't feel like installing caffe, you can download the output here:
 https://s3.amazonaws.com/tinyclouds-storage/vgg16-v4.tfmodel
 
 The input ("images") to the TF model is expected to be [batch, height, width, channel]
-where height = width = 224 and channel = 3.
+where height = width = 224 and channel = 3. Values should be between 0 and 1.
 
 The output ("prob") is a 1000 dimensional class probabiity vector whose indexes
 correspond to line numbers in syset.txt.

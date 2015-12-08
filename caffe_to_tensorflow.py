@@ -207,7 +207,7 @@ def show_caffe_net_input():
   skimage.io.show()
 
 def same_tensor(a, b):
-  return np.linalg.norm(a - b) < 1 
+  return np.linalg.norm(a - b) < 1
 
 def main():
   global tf_activations
@@ -221,6 +221,7 @@ def main():
   if run_caffe:
     print "caffe session"
     assert same_tensor(deprocess(preprocess(cat)), cat)
+    assert (0 <= cat).all() and (cat <= 1.0).all()
     net_caffe.blobs['data'].data[0] = preprocess(cat)
     assert net_caffe.blobs['data'].data[0].shape == (3, 224, 224)
     #show_caffe_net_input()
@@ -246,6 +247,7 @@ def main():
       assert cat.shape == (224, 224, 3)
       batch = cat.reshape((1, 224, 224, 3))
       assert batch.shape == (1, 224, 224, 3)
+      assert (0 <= batch).all() and (batch <= 1.0).all()
 
       out = sess.run([m['prob'], m['relu1_1'], m['conv1_1_weights'], \
           m['conv1_1a'], m['pool5'], m['fc6a']], feed_dict={ images: batch })

@@ -11,6 +11,8 @@ VGG_MEAN = [103.939, 116.779, 123.68]
 def load_image(path):
   # load image
   img = skimage.io.imread(path)
+  img = img / 255.0
+  assert (0 <= img).all() and (img <= 1.0).all()
   #print "Original Image Shape: ", img.shape
   # we crop image from center
   short_edge = min(img.shape[:2])
