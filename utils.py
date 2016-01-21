@@ -4,7 +4,6 @@ import skimage.transform
 import numpy as np
 
 synset = [l.strip() for l in open('synset.txt').readlines()]
-VGG_MEAN = [103.939, 116.779, 123.68]
 
 # returns image of shape [224, 224, 3]
 # [height, width, depth]
