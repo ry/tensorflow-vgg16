@@ -15,8 +15,8 @@ Run `make` to download the original caffe model and convert it.
 `tf_forward.py` has an example of how to use the generated `vgg16.tfmodel`
 file.
 
-If you don't feel like installing caffe, you can download the output here:
-https://s3.amazonaws.com/tinyclouds-storage/vgg16-v4.tfmodel
+If you don't feel like installing caffe, you can download the output here 
+https://github.com/ry/tensorflow-vgg16/raw/master/vgg16-20160121.torrent
 
 The input ("images") to the TF model is expected to be [batch, height, width, channel]
 where height = width = 224 and channel = 3. Values should be between 0 and 1.
