@@ -28,20 +28,21 @@ class Model():
             return relu
 
     def _fc_layer(self, bottom, name):
-        shape = bottom.get_shape().as_list()
-        dim = 1
-        for d in shape[1:]:
-             dim *= d
-        x = tf.reshape(bottom, [-1, dim])
+        with tf.variable_scope(name) as scope:
+            shape = bottom.get_shape().as_list()
+            dim = 1
+            for d in shape[1:]:
+                 dim *= d
+            x = tf.reshape(bottom, [-1, dim])
 
-        weights = self.get_fc_weight(name)
-        biases = self.get_bias(name)
+            weights = self.get_fc_weight(name)
+            biases = self.get_bias(name)
 
-        # Fully connected layer. Note that the '+' operation automatically
-        # broadcasts the biases.
-        fc = tf.nn.bias_add(tf.matmul(x, weights), biases)
+            # Fully connected layer. Note that the '+' operation automatically
+            # broadcasts the biases.
+            fc = tf.nn.bias_add(tf.matmul(x, weights), biases)
 
-        return fc
+            return fc
 
     # Input should be an rgb image [batch, height, width, 3]
     # values scaled [0, 1]
@@ -84,7 +85,7 @@ class Model():
         self.pool5 = self._max_pool(self.relu5_3, 'pool5')
 
         self.fc6 = self._fc_layer(self.pool5, "fc6")
-        assert self.fc6.get_shape().as_list() == [None, 4096]
+        assert self.fc6.get_shape().as_list()[1:] == [4096]
 
         self.relu6 = tf.nn.relu(self.fc6)
         self.drop6 = tf.nn.dropout(self.relu6, 0.5)

@@ -104,7 +104,7 @@ class ModelFromCaffe(vgg16.Model):
         else:
             cw = cw.transpose((1, 0))
 
-        return tf.constant(cw, dtype=tf.float32)
+        return tf.constant(cw, dtype=tf.float32, name="weight")
 
 def show_caffe_net_input():
   x = net_caffe.blobs['data'].data[0]
