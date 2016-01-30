@@ -114,7 +114,7 @@ def show_caffe_net_input():
   skimage.io.show()
 
 def same_tensor(a, b):
-  return np.linalg.norm(a - b) < 1
+  return np.linalg.norm(a - b) < 0.1
 
 def main():
   global tf_activations
@@ -161,7 +161,7 @@ def main():
       }
 
       top1 = print_prob(tf_activations['prob'])
-      ##assert top1 == "n02123045 tabby, tabby cat"
+      assert top1 == "n02123045 tabby, tabby cat"
 
   # Now we compare tf_activations to net_caffe's if we ran a forward pass
   # in both networks.

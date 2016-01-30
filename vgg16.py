@@ -46,7 +46,7 @@ class Model():
 
     # Input should be an rgb image [batch, height, width, 3]
     # values scaled [0, 1]
-    def build(self, rgb):
+    def build(self, rgb, train=False):
         rgb_scaled = rgb * 255.0
 
         # Convert RGB to BGR
@@ -88,12 +88,14 @@ class Model():
         assert self.fc6.get_shape().as_list()[1:] == [4096]
 
         self.relu6 = tf.nn.relu(self.fc6)
-        self.drop6 = tf.nn.dropout(self.relu6, 0.5)
+        if train:
+            self.relu6 = tf.nn.dropout(self.relu6, 0.5)
 
-        self.fc7 = self._fc_layer(self.drop6, "fc7")
+        self.fc7 = self._fc_layer(self.relu6, "fc7")
         self.relu7 = tf.nn.relu(self.fc7)
-        self.drop7 = tf.nn.dropout(self.relu7, 0.5)
+        if train:
+            self.relu7 = tf.nn.dropout(self.relu7, 0.5)
 
-        self.fc8 = self._fc_layer(self.drop7, "fc8")
+        self.fc8 = self._fc_layer(self.relu7, "fc8")
         self.prob = tf.nn.softmax(self.fc8, name="prob")
 
